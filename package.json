@@ -4,6 +4,15 @@
   "description": "delivery much backend challenge",
   "main": "src/server.ts",
   "scripts": {
+    "dev": "ts-node --transpile-only -r dotenv/config -r tsconfig-paths/register -P tsconfig.json src/server.ts",
+    "build": "npx tsc && cp -R ./src/mail ./build/src/",
+    "start": "node -r dotenv/config build/server.js",
+    "migration:create": "knex migrate:make",
+    "migration:revert": "knex migrate:rollback",
+    "migration:run": "knex migrate:latest",
+    "postgres:start": "docker run -d -p 5432:5432 --name postgres -e POSTGRES_HOST_AUTH_METHOD=trust postgres:12-alpine",
+    "database:create": "docker exec postgres psql -U postgres postgres -c \"CREATE DATABASE storage\"",
+    "databasetest:create": "docker exec postgres psql -U postgres postgres -c \"CREATE DATABASE storage\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -32,6 +41,7 @@
     "ts-jest": "^26.5.1",
     "ts-node": "^9.1.1",
     "ts-node-dev": "^1.1.1",
+    "tsconfig-paths": "^3.9.0",
     "typescript": "^4.1.5",
     "typescript-json-schema": "^0.49.0"
   },
