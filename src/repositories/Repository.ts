@@ -61,7 +61,7 @@ export abstract class Repository<T extends Base> {
 
     const query = knex(this.tableName)
       .select()
-      .whereNull("deleted_at")
+      .whereNull("deletedAt")
       .where({ ...condition })
       .first();
 
@@ -93,7 +93,7 @@ export abstract class Repository<T extends Base> {
 
     const search = this.knex(this.tableName)
       .select()
-      .whereNull(`${this.tableName}.deleted_at`)
+      .whereNull(`${this.tableName}.deletedAt`)
       .where({ ...(condition ?? {}) })
       .limit(searchLimit)
       .offset((searchPage - 1) * searchLimit);
@@ -121,7 +121,7 @@ export abstract class Repository<T extends Base> {
   async count(condition?: Partial<T>, queryBuilder?: (qb: Knex.QueryBuilder) => void): Promise<number> {
     const query = this.knex(this.tableName)
       .select()
-      .whereNull(`${this.tableName}.deleted_at`)
+      .whereNull(`${this.tableName}.deletedAt`)
       .where({ ...(condition ?? {}) })
       .count({ count: 1 })
       .first();
@@ -139,7 +139,7 @@ export abstract class Repository<T extends Base> {
    * @returns {(Promise<Array<T | undefined>>)} array com a instância dos objetos
    */
   async findAll(): Promise<T[]> {
-    return this.knex(this.tableName).select().whereNull("deleted_at");
+    return this.knex(this.tableName).select().whereNull("deletedAt");
   }
 
   /**
@@ -156,7 +156,7 @@ export abstract class Repository<T extends Base> {
   ): Promise<T[]> {
     const query = knex(this.tableName)
       .select()
-      .whereNull(`${this.tableName}.deleted_at`)
+      .whereNull(`${this.tableName}.deletedAt`)
       .where({ ...condition });
 
     if (queryBuilder) {
@@ -199,7 +199,7 @@ export abstract class Repository<T extends Base> {
 
     const current: T | undefined = await knex(this.tableName)
       .select()
-      .whereNull("deleted_at")
+      .whereNull("deletedAt")
       .where({ id: item.id })
       .first()
       .forUpdate();
@@ -209,7 +209,7 @@ export abstract class Repository<T extends Base> {
     }
 
     const [updatedItem]: T[] = await knex(this.tableName)
-      .whereNull("deleted_at")
+      .whereNull("deletedAt")
       .where({ id: item.id })
       .update({
         ...item,
@@ -231,7 +231,7 @@ export abstract class Repository<T extends Base> {
     return this.knex.transaction(async trx => {
       const current: T | undefined = await trx(this.tableName)
         .select()
-        .whereNull("deleted_at")
+        .whereNull("deletedAt")
         .where({ id })
         .first()
         .forUpdate();
@@ -242,7 +242,7 @@ export abstract class Repository<T extends Base> {
 
       const now = new Date();
       const [deleted]: Array<T | undefined> = await trx(this.tableName)
-        .whereNull("deleted_at")
+        .whereNull("deletedAt")
         .where({ id })
         .update({ updatedAt: now, deletedAt: now })
         .returning("*");
@@ -274,7 +274,7 @@ export abstract class Repository<T extends Base> {
     const now = new Date();
 
     const query = knex(`${this.tableName}`)
-      .whereNull("deleted_at")
+      .whereNull("deletedAt")
       .where({ ...condition })
       .update({ updatedAt: now, deletedAt: now })
       .returning("*");
