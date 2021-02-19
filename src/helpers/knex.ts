@@ -16,5 +16,5 @@ export async function createTable(
 }
 
 export async function dropTable(knex: Knex, tableName: string) {
-await knex.schema.dropTable(tableName);
+    await knex.schema.dropTable(tableName);
 }
