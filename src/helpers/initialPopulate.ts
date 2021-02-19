@@ -45,5 +45,4 @@ export async function initialPopulate() {
 
 initialPopulate().then(() => { console.log("Products inserted.") }).catch(err => {
     console.log(err);
-    process.exit(1);
 });
