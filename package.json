@@ -27,7 +27,6 @@
   },
   "homepage": "https://github.com/froescayo/dm_challenge#readme",
   "devDependencies": {
-    "@types/amqplib": "^0.5.17",
     "@types/cors": "^2.8.10",
     "@types/date-fns": "^2.6.0",
     "@types/express": "^4.17.11",
@@ -49,7 +48,6 @@
   },
   "dependencies": {
     "amqp-ts": "^1.8.0",
-    "amqplib": "^0.6.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "date-fns": "^2.17.0",
