@@ -3,8 +3,8 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import knex from "./knex";
-import { config } from "./middlewares/config";
 import routes from "./routes";
+import { config } from "./middlewares/config";
 
 const app = express();
 
