@@ -5,7 +5,7 @@
   "main": "src/server.ts",
   "scripts": {
     "populate": "ts-node -r dotenv/config src/helpers/initialPopulate.ts",
-    "dev": "ts-node --transpile-only -r dotenv/config -r tsconfig-paths/register -P tsconfig.json src/server.ts",
+    "dev": "ts-node-dev --transpile-only -r dotenv/config -r tsconfig-paths/register -P tsconfig.json src/server.ts",
     "build": "npx tsc && cp -R ./build/src/",
     "start": "node -r dotenv/config build/server.js",
     "migration:create": "knex migrate:make",
@@ -47,7 +47,7 @@
     "typescript-json-schema": "^0.49.0"
   },
   "dependencies": {
-    "amqplib": "^0.6.0",
+    "amqp-ts": "^1.8.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "date-fns": "^2.17.0",
