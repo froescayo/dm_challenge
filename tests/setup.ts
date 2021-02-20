@@ -36,7 +36,7 @@ beforeAll(async () => {
 
     knex = getKnexInstance(databasename);
 
-    await knex.raw(`CREATE EXTENSION IF NOT EXISTS "unaccent"`);
+    await knex.raw(`CREATE EXTENSION IF NOT EXISTS "unaccent";`);
 
     await knex.migrate.latest();
   } catch (err) {

@@ -1,3 +1,4 @@
+import { randomBytes } from "crypto";
 import ExcelJs from "exceljs";
 import Knex from "knex";
 import path from "path";
@@ -7,7 +8,10 @@ import { env } from "./env";
 const knex = Knex({
   client: "pg",
   connection: {
-    database: process.env.NODE_ENV && process.env.NODE_ENV === "test" ? `test_${uuid()}` : env.DB_DATABASE,
+    database:
+      process.env.NODE_ENV && process.env.NODE_ENV === "test"
+        ? `test_${randomBytes(8).toString("hex")}`
+        : env.DB_DATABASE,
     host: env.DB_HOST,
     user: env.DB_USERNAME,
     password: env.DB_PASSWORD,
@@ -48,10 +52,10 @@ export async function initialPopulate(knex: Knex) {
   await knex("products").insert(productsFromCsv);
 }
 
-initialPopulate(knex)
-  .then(() => {
-    console.log("Products inserted.");
-  })
-  .catch(err => {
-    console.log(err);
-  });
+// initialPopulate(knex)
+//   .then(() => {
+//     console.log("Products inserted.");
+//   })
+//   .catch(err => {
+//     console.log(err);
+//   });

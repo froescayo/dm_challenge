@@ -5,6 +5,7 @@ module.exports = {
   coveragePathIgnorePatterns: [
     "/node_modules/",
     "/src/generated/",
+    "/src/repositories/Repository.ts",
     "/src/helpers/errors.ts",
     "/src/helpers/env.ts",
     "/src/helpers/knex.ts",

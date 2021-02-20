@@ -34,6 +34,7 @@
     "@types/helmet": "^4.0.0",
     "@types/jest": "^26.0.20",
     "@types/pg": "^7.14.10",
+    "@types/supertest": "^2.0.10",
     "@types/uuid": "^8.3.0",
     "dotenv": "^8.2.0",
     "eslint": "^7.20.0",

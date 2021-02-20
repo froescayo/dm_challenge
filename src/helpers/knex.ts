@@ -37,6 +37,7 @@ export function getKnexInstance(databaseName?: string) {
       extension: "ts",
     },
   });
+
   instances.push(instance);
 
   return instance;
