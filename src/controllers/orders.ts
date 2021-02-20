@@ -35,7 +35,7 @@ export async function makeOrder(req: Request, res: Response) {
         await req.db.products.update(
           {
             id: dbProduct.id,
-            quantity: dbProduct.quantity - quantity,
+            quantity: dbProduct.quantity - quantity <= 0 ? 0 : dbProduct.quantity - quantity,
           },
           trx,
         );
@@ -52,11 +52,11 @@ export async function makeOrder(req: Request, res: Response) {
         trx,
       );
 
-      await req.knex("order_items").insert(
-        productsOrdered.map(cur => {
-          return { ...cur, id: uuid(), orderId: order.id };
-        }),
-      );
+      const products = productsOrdered.map(cur => {
+        return { ...cur, id: uuid(), orderId: order.id };
+      });
+
+      await trx("order_items").insert(products);
 
       return { id: order.id, products: productsOrdered, total };
     });
@@ -89,7 +89,7 @@ export async function getOrders(req: Request, res: Response) {
 
 export async function getOrder(req: Request, res: Response) {
   const { id } = req.params;
-  const dbOrder = await req.db.orders.get(id);
+  const dbOrder = await req.db.orders.findOneBy({ id });
 
   if (!dbOrder) {
     return res.status(StatusCodes.NOT_FOUND).send({ error: errors.orders.orderNotFound });

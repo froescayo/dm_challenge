@@ -3,7 +3,7 @@ import { createTable, dropTable } from "../helpers/knex";
 
 export async function up(knex: Knex) {
     await createTable(knex, "order_items", table => {
-      table.text("name").notNullable().unique();
+      table.text("name").notNullable();
       table.float("price").notNullable().defaultTo("0.00");
       table.integer("quantity").notNullable();
       table.uuid("orderId").notNullable();
