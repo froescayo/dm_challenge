@@ -4,5 +4,6 @@ export const errors = {
   },
   orders: {
     outOfDisponibility: "We can't proceed with your order due one of products is unavailable at the moment.",
+    orderNotFound: "Order indicated was not found.",
   },
 };

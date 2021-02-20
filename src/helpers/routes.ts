@@ -4,6 +4,7 @@ export const Routes = {
   },
   orders: {
     get: "/orders",
+    getParticularOrder: "/orders/:id",
     post: "/orders",
   },
 };

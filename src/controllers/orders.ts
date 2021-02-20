@@ -66,3 +66,42 @@ export async function makeOrder(req: Request, res: Response) {
     return res.status(StatusCodes.UNPROCESSABLE_ENTITY).send({ error: errors.orders.outOfDisponibility });
   }
 }
+
+export async function getOrders(req: Request, res: Response) {
+  const dbOrders = await req.db.orders.findAll();
+
+  const completeOrders = [];
+
+  for (const dbOrder of dbOrders) {
+    const dbOrderItems = await req.db.orderItems.findBy({ orderId: dbOrder.id });
+
+    completeOrders.push({
+      id: dbOrder.id,
+      products: dbOrderItems.map(cur => {
+        return { name: cur.name, price: cur.price, quantity: cur.quantity };
+      }),
+      total: dbOrder.total,
+    });
+  }
+
+  return res.status(StatusCodes.OKAY).send({ orders: completeOrders });
+}
+
+export async function getOrder(req: Request, res: Response) {
+  const { id } = req.params;
+  const dbOrder = await req.db.orders.get(id);
+
+  if (!dbOrder) {
+    return res.status(StatusCodes.NOT_FOUND).send({ error: errors.orders.orderNotFound });
+  }
+
+  const dbOrderItems = await req.db.orderItems.findBy({ orderId: dbOrder.id });
+
+  return res.status(StatusCodes.OKAY).send({
+    id: dbOrder.id,
+    products: dbOrderItems.map(cur => {
+      return { name: cur.name, price: cur.price, quantity: cur.quantity };
+    }),
+    total: dbOrder.total,
+  });
+}
