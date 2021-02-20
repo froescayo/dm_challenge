@@ -16,7 +16,6 @@ const options: Knex.Config = {
     extension: "ts",
   },
 };
-
 const knex: Knex = Knex(options);
 
 export default knex;
