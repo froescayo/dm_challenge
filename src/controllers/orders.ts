@@ -14,51 +14,55 @@ export async function makeOrder(req: Request, res: Response) {
     return res.status(StatusCodes.VALIDATION_FAIL).send({ error });
   }
 
-  const order = await req.knex.transaction(async trx => {
-    const productsOrdered = [];
-    let total = 0.0;
+  try {
+    const order = await req.knex.transaction(async trx => {
+      const productsOrdered = [];
+      let total = 0.0;
 
-    for (const { name, quantity } of input) {
-      const dbProduct = await req.db.products.findOneBy(
-        { name: name },
-        qb => {
-          return qb.where("quantity", ">=", quantity);
-        },
-        trx,
-      );
+      for (const { name, quantity } of input) {
+        const dbProduct = await req.db.products.findOneBy(
+          { name: name },
+          qb => {
+            return qb.where("quantity", ">=", quantity);
+          },
+          trx,
+        );
 
-      if (!dbProduct) {
-        return res.status(StatusCodes.UNPROCESSABLE_ENTITY).send({ error: errors.orders.outOfDisponibility });
+        if (!dbProduct) {
+          throw new Error(errors.orders.outOfDisponibility);
+        }
+
+        await req.db.products.update(
+          {
+            id: dbProduct.id,
+            quantity: dbProduct.quantity - quantity,
+          },
+          trx,
+        );
+
+        total += quantity * dbProduct.price;
+
+        productsOrdered.push({ name: dbProduct.name, price: dbProduct.price, quantity });
       }
 
-      await req.db.products.update(
+      const order = await req.db.orders.insert(
         {
-          id: dbProduct.id,
-          quantity: dbProduct.quantity - quantity,
+          total,
         },
         trx,
       );
 
-      total += quantity * dbProduct.price;
+      await req.knex("order_items").insert(
+        productsOrdered.map(cur => {
+          return { ...cur, id: uuid(), orderId: order.id };
+        }),
+      );
 
-      productsOrdered.push({ name: dbProduct.name, price: dbProduct.price, quantity });
-    }
+      return { id: order.id, products: productsOrdered, total };
+    });
 
-    const order = await req.db.orders.insert(
-      {
-        total,
-      },
-      trx,
-    );
-
-    await req.knex("order_items").insert(
-      productsOrdered.map(cur => {
-        return { ...cur, id: uuid(), orderId: order.id };
-      }),
-    );
-
-    return { id: order.id, products: productsOrdered, total };
-  });
-
-  return res.status(StatusCodes.OKAY).send(order);
+    return res.status(StatusCodes.OKAY).send(order);
+  } catch (error) {
+    return res.status(StatusCodes.UNPROCESSABLE_ENTITY).send({ error: errors.orders.outOfDisponibility });
+  }
 }
