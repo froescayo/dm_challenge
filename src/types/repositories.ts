@@ -1,4 +1,6 @@
-import { ProductRepository } from "../repositories";
+import { OrderItemRepository, OrderRepository, ProductRepository } from "../repositories";
 export interface Repositories {
-    products: ProductRepository;
+  products: ProductRepository;
+  orders: OrderRepository;
+  orderItems: OrderItemRepository;
 }
