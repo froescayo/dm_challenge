@@ -2,8 +2,8 @@ import faker from "faker";
 import Knex from "knex";
 import pg from "pg";
 import { env } from "../src/helpers/env";
-import { initialPopulate } from "../src/helpers/initialPopulate";
 import { getKnexInstance, instances as knexInstances } from "../src/helpers/knex";
+import { initialPopulate } from "../src/helpers/populate";
 import { databaseName } from "../src/knex";
 
 jest.setTimeout(20000);
@@ -23,7 +23,6 @@ beforeAll(async () => {
 
   try {
     masterConn = new pg.Pool({
-      database: "postgres",
       host: env.DB_HOST,
       password: env.DB_PASSWORD,
       port: parseInt(env.DB_PORT || "5432", 10),

@@ -116,3 +116,17 @@ Finally, we can put our server up using:
   "quantity": 5
 }
 ```
+
+## Test
+
+It is possible to run all test suites using:
+
+```
+ - npm run test
+```
+
+But it's also possible to run one of them individually:
+
+```
+ - npm test products.test.ts
+```
