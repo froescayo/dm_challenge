@@ -1,18 +1,16 @@
-import { randomBytes } from "crypto";
-import dotenv from "dotenv";
 import faker from "faker";
 import Knex from "knex";
 import pg from "pg";
 import { env } from "../src/helpers/env";
+import { initialPopulate } from "../src/helpers/initialPopulate";
 import { getKnexInstance, instances as knexInstances } from "../src/helpers/knex";
+import { databaseName } from "../src/knex";
 
-jest.setTimeout(30000);
-dotenv.config();
+jest.setTimeout(20000);
 
 process.env.TZ = "UTC";
 
 const fakerSeed = process.env.FAKER_SEED ? parseInt(process.env.FAKER_SEED, 10) : Math.floor(100000 * Math.random());
-export const databasename = `test_${randomBytes(8).toString("hex")}`;
 
 export let masterConn: pg.Pool;
 export let knex: Knex;
@@ -32,13 +30,13 @@ beforeAll(async () => {
       user: env.DB_USERNAME,
     });
 
-    await masterConn.query(`CREATE DATABASE ${databasename};`);
+    await masterConn.query(`CREATE DATABASE ${databaseName};`);
 
-    knex = getKnexInstance(databasename);
+    knex = getKnexInstance(databaseName);
 
     await knex.raw(`CREATE EXTENSION IF NOT EXISTS "unaccent";`);
 
-    await knex.migrate.latest();
+    await initialPopulate(knex);
   } catch (err) {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     process.stderr.write(`${err}\n${err.stack || ""}\n`);

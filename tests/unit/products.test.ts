@@ -4,16 +4,9 @@ import app from "../../src/app";
 import { errors } from "../../src/helpers/errors";
 import { Routes } from "../../src/helpers/routes";
 import { StatusCodes } from "../../src/helpers/statusCode";
-import { makeCtx } from "../helpers";
-import { Context } from "../types/ctx";
 
 describe("Products", () => {
-  let ctx: Context;
   const request = supertest(app);
-
-  beforeAll(async () => {
-    ctx = await makeCtx();
-  });
 
   describe(Routes.products.get, () => {
     it("should return status code 404 if product informed does not exist", async () => {

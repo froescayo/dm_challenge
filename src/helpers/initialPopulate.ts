@@ -1,61 +1,51 @@
-import { randomBytes } from "crypto";
 import ExcelJs from "exceljs";
 import Knex from "knex";
 import path from "path";
 import { v4 as uuid } from "uuid";
-import { env } from "./env";
+import { databaseName } from "../knex";
+import { getKnexInstance } from "./knex";
 
-const knex = Knex({
-  client: "pg",
-  connection: {
-    database:
-      process.env.NODE_ENV && process.env.NODE_ENV === "test"
-        ? `test_${randomBytes(8).toString("hex")}`
-        : env.DB_DATABASE,
-    host: env.DB_HOST,
-    user: env.DB_USERNAME,
-    password: env.DB_PASSWORD,
-    port: parseInt(env.DB_PORT || "5432", 10),
-  },
-  migrations: {
-    directory: "src/migrations",
-    extension: "ts",
-  },
-});
+export async function initialPopulate(knex?: Knex) {
+  let knexInstance: Knex = knex ? knex : getKnexInstance(databaseName);
 
-export async function initialPopulate(knex: Knex) {
-  const workbook = new ExcelJs.Workbook();
-  const worksheet = await workbook.csv.readFile(path.join(__dirname, "..", "..", "products.csv"));
-  const productsFromCsv: Array<{ id: string; name: string; price: number; quantity: number }> = [];
+  try {
+    await knexInstance.migrate.latest();
 
-  worksheet.spliceRows(1, 1);
-  worksheet.eachRow(row => {
-    const values = JSON.stringify(row.values);
-    const [, name, price, quantity] = JSON.parse(values);
+    const workbook = new ExcelJs.Workbook();
+    const worksheet = await workbook.csv.readFile(path.join(__dirname, "..", "..", "products.csv"));
+    const productsFromCsv: Array<{ id: string; name: string; price: number; quantity: number }> = [];
 
-    productsFromCsv.push({ id: uuid(), name, price: parseFloat(price), quantity: parseInt(quantity, 10) });
-  });
+    worksheet.spliceRows(1, 1);
+    worksheet.eachRow(row => {
+      const values = JSON.stringify(row.values);
+      const [, name, price, quantity] = JSON.parse(values);
 
-  const exists = await knex("products").whereIn(
-    "name",
-    productsFromCsv.map(cur => cur.name),
-  );
+      productsFromCsv.push({ id: uuid(), name, price: parseFloat(price), quantity: parseInt(quantity, 10) });
+    });
 
-  if (exists.length > 0) {
-    throw new Error(
-      `It was not possible to insert those products due one or more of them already exists:${exists.map(cur => {
-        return ` ${cur.name}`;
-      })}`,
+    const exists = await knexInstance("products").whereIn(
+      "name",
+      productsFromCsv.map(cur => cur.name),
     );
-  }
 
-  await knex("products").insert(productsFromCsv);
+    if (exists.length > 0) {
+      throw new Error(
+        `It was not possible to insert those products due to one or more of them already exists:${exists.map(cur => {
+          return ` ${cur.name}`;
+        })}`,
+      );
+    }
+
+    await knexInstance("products").insert(productsFromCsv);
+  } catch (error) {
+    console.log(`Initial Populate Error: `, error);
+  }
 }
 
-// initialPopulate(knex)
-//   .then(() => {
-//     console.log("Products inserted.");
-//   })
-//   .catch(err => {
-//     console.log(err);
-//   });
+initialPopulate()
+  .then(() => {
+    console.log("Products inserted.");
+  })
+  .catch(err => {
+    console.log(err);
+  });

@@ -13,7 +13,6 @@
     "migration:run": "knex migrate:latest",
     "postgres:start": "docker run -d -p 5432:5432 --name postgres -e POSTGRES_HOST_AUTH_METHOD=trust postgres:12-alpine",
     "database:create": "docker exec postgres psql -U postgres postgres -c \"CREATE DATABASE storage\"",
-    "databasetest:create": "docker exec postgres psql -U postgres postgres -c \"CREATE DATABASE storage\"",
     "test": "jest"
   },
   "repository": {

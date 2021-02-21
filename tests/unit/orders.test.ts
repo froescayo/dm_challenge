@@ -97,13 +97,13 @@ describe("Orders", () => {
       expect(responseThree.status).toBe(StatusCodes.VALIDATION_FAIL);
     });
 
-    it("should return status code 422 and its error", async () => {
+    it("should return status code 409 and its error", async () => {
       const resp = await request
         .post(Routes.orders.post)
         .send([{ name: faker.random.word(), quantity: faker.random.number() }]);
 
-      expect(resp.status).toBe(StatusCodes.UNPROCESSABLE_ENTITY);
-      expect(resp.body.error).toBe(errors.orders.outOfDisponibility);
+      expect(resp.status).toBe(StatusCodes.CONFLICT);
+      expect(resp.body.error).toBe(errors.orders.unavailable);
     });
 
     it("should return status code 200 and the order data with one product", async () => {

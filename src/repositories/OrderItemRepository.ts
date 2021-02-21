@@ -1,6 +1,6 @@
 import Knex from "knex";
 import { DBOrderItem } from "../db";
-import { Repository } from "./Repository";
+import { Repository } from "./repository";
 
 export class OrderItemRepository extends Repository<DBOrderItem> {
   constructor(knex: Knex) {
