@@ -1,11 +1,14 @@
+import { randomBytes } from "crypto";
 import Knex from "knex";
-import { databasename } from "../tests/setup";
 import { env } from "./helpers/env";
+
+export const databaseName =
+  process.env.NODE_ENV && process.env.NODE_ENV === "test" ? `test_${randomBytes(8).toString("hex")}` : env.DB_DATABASE;
 
 const options: Knex.Config = {
   client: "pg",
   connection: {
-    database: process.env.NODE_ENV && process.env.NODE_ENV === "test" ? databasename : env.DB_DATABASE,
+    database: databaseName,
     host: env.DB_HOST,
     user: env.DB_USERNAME,
     password: env.DB_PASSWORD,
@@ -16,7 +19,6 @@ const options: Knex.Config = {
     extension: "ts",
   },
 };
-
 const knex: Knex = Knex(options);
 
 export default knex;

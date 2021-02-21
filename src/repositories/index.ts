@@ -1,3 +1,3 @@
-export * from "./OrderItemRepository";
-export * from "./OrderRepository";
-export * from "./ProductRepository";
+export * from "./orderItemRepository";
+export * from "./orderRepository";
+export * from "./productRepository";

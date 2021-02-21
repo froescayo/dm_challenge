@@ -29,13 +29,13 @@ export async function makeOrder(req: Request, res: Response) {
         );
 
         if (!dbProduct) {
-          throw new Error(errors.orders.outOfDisponibility);
+          throw new Error(errors.orders.unavailable);
         }
 
         await req.db.products.update(
           {
             id: dbProduct.id,
-            quantity: dbProduct.quantity - quantity <= 0 ? 0 : dbProduct.quantity - quantity,
+            quantity: dbProduct.quantity - quantity,
           },
           trx,
         );
@@ -63,45 +63,53 @@ export async function makeOrder(req: Request, res: Response) {
 
     return res.status(StatusCodes.OKAY).send(order);
   } catch (error) {
-    return res.status(StatusCodes.UNPROCESSABLE_ENTITY).send({ error: errors.orders.outOfDisponibility });
+    return res.status(StatusCodes.CONFLICT).send({ error: errors.orders.unavailable });
   }
 }
 
 export async function getOrders(req: Request, res: Response) {
-  const dbOrders = await req.db.orders.findAll();
+  try {
+    const dbOrders = await req.db.orders.findAll();
 
-  const completeOrders = [];
+    const completeOrders = [];
 
-  for (const dbOrder of dbOrders) {
+    for (const dbOrder of dbOrders) {
+      const dbOrderItems = await req.db.orderItems.findBy({ orderId: dbOrder.id });
+
+      completeOrders.push({
+        id: dbOrder.id,
+        products: dbOrderItems.map(cur => {
+          return { name: cur.name, price: cur.price, quantity: cur.quantity };
+        }),
+        total: dbOrder.total,
+      });
+    }
+
+    return res.status(StatusCodes.OKAY).send({ orders: completeOrders });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error });
+  }
+}
+
+export async function getOrder(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const dbOrder = await req.db.orders.findOneBy({ id });
+
+    if (!dbOrder) {
+      return res.status(StatusCodes.NOT_FOUND).send({ error: errors.orders.orderNotFound });
+    }
+
     const dbOrderItems = await req.db.orderItems.findBy({ orderId: dbOrder.id });
 
-    completeOrders.push({
+    return res.status(StatusCodes.OKAY).send({
       id: dbOrder.id,
       products: dbOrderItems.map(cur => {
         return { name: cur.name, price: cur.price, quantity: cur.quantity };
       }),
       total: dbOrder.total,
     });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error });
   }
-
-  return res.status(StatusCodes.OKAY).send({ orders: completeOrders });
-}
-
-export async function getOrder(req: Request, res: Response) {
-  const { id } = req.params;
-  const dbOrder = await req.db.orders.findOneBy({ id });
-
-  if (!dbOrder) {
-    return res.status(StatusCodes.NOT_FOUND).send({ error: errors.orders.orderNotFound });
-  }
-
-  const dbOrderItems = await req.db.orderItems.findBy({ orderId: dbOrder.id });
-
-  return res.status(StatusCodes.OKAY).send({
-    id: dbOrder.id,
-    products: dbOrderItems.map(cur => {
-      return { name: cur.name, price: cur.price, quantity: cur.quantity };
-    }),
-    total: dbOrder.total,
-  });
 }
